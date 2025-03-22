@@ -14,7 +14,7 @@ func main() {
 	}
 	fmt.Println("DBURL config file: ", cfg)
 
-	err = cfg.SetUser("whynayTest")
+	err = cfg.SetUser("whynay")
 	if err != nil {
 		log.Fatal("error setting user:", err)
 	}
