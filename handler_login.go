@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"os"
 )
 
 func handlerLogins(state *state, cmd command) error {
@@ -10,11 +12,23 @@ func handlerLogins(state *state, cmd command) error {
 		return errors.New("command was empty")
 	}
 
-	err := state.state.SetUser(cmd.arguments[0])
+	username := cmd.arguments[0]
+	err := state.state.SetUser(username)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("logged with the name", cmd.arguments[0])
+	user, err := state.db.GetUsers(context.Background(), username)
+	if err != nil {
+		fmt.Println("erro user does not exist")
+		os.Exit(1)
+	}
+
+	err = state.state.SetUser(user.Name)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("logged with the name", user.Name)
 	return nil
 }
