@@ -18,7 +18,7 @@ func handlerLogins(state *state, cmd command) error {
 		return err
 	}
 
-	user, err := state.db.GetUsers(context.Background(), username)
+	user, err := state.db.GetUser(context.Background(), username)
 	if err != nil {
 		fmt.Println("erro user does not exist")
 		os.Exit(1)
