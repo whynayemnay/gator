@@ -75,14 +75,9 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFeed(s *state, cmd command) error {
+func handlerFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 2 {
 		return fmt.Errorf("give two arguments 1: feed name, 2: feed url")
-	}
-	name := s.state.CurrentUserName
-	user, err := s.db.GetUser(context.Background(), name)
-	if err != nil {
-		return fmt.Errorf("failed to fetch the user info: %w ", err)
 	}
 	feedName := cmd.arguments[0]
 	feedURL := cmd.arguments[1]
@@ -138,7 +133,7 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerInsertFeed(s *state, cmd command) error {
+func handlerInsertFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 1 {
 		return fmt.Errorf("provide feed name as argument")
 	}
@@ -146,11 +141,6 @@ func handlerInsertFeed(s *state, cmd command) error {
 	feed, err := s.db.SelectFeedByURL(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("error fetching the feed data by url: %w", err)
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.state.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error fetching user by the name: %w", err)
 	}
 
 	feedFollow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
@@ -171,13 +161,9 @@ func handlerInsertFeed(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 0 {
 		return fmt.Errorf("error to manny arguments passed for the command")
-	}
-	user, err := s.db.GetUser(context.Background(), s.state.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error getting the user by the name: %w", err)
 	}
 	query, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
