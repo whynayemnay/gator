@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error reading config:", err)
 	}
-	fmt.Println("DBURL config file: ", cfg)
+	// fmt.Println("DBURL config file: ", cfg)
 
 	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 	cmds.register("users", handlerGetUsers)
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerFeed)
-
+	cmds.register("feeds", handlerFeeds)
 	args := os.Args
 	if len(args) < 2 {
 		fmt.Println("error: no command.")
