@@ -7,6 +7,10 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/whynayemnay/gator/internal/database"
 )
 
 type RSSFeed struct {
@@ -68,5 +72,39 @@ func handlerAgg(s *state, cmd command) error {
 	}
 
 	fmt.Printf("Fetched RSS Feed:\n%+v\n", rss)
+	return nil
+}
+
+func handlerFeed(s *state, cmd command) error {
+	if len(cmd.arguments) != 2 {
+		return fmt.Errorf("give two arguments 1: feed name, 2: feed url")
+	}
+	name := s.state.CurrentUserName
+	user, err := s.db.GetUser(context.Background(), name)
+	if err != nil {
+		return fmt.Errorf("failed to fetch the user info: %w ", err)
+	}
+	feedName := cmd.arguments[0]
+	feedURL := cmd.arguments[1]
+	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      feedName,
+		Url:       feedURL,
+		UserID:    user.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("error creating a new feed entry: %w", err)
+	}
+	fmt.Printf("new feed added to db: \n"+
+		"feedID: %v\n"+
+		"created at: %v\n"+
+		"updated at: %v\n"+
+		"name: %v\n"+
+		"url: %v\n"+
+		"user_id: %v\n", feed.ID, feed.CreatedAt, feed.UpdatedAt,
+		feed.Name, feed.Url, feed.UserID)
+
 	return nil
 }
