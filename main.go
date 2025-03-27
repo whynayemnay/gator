@@ -44,6 +44,9 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerFeed)
 	cmds.register("feeds", handlerFeeds)
+	cmds.register("follow", handlerInsertFeed)
+	cmds.register("following", handlerFollowing)
+
 	args := os.Args
 	if len(args) < 2 {
 		fmt.Println("error: no command.")

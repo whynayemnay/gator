@@ -54,3 +54,17 @@ SELECT
 FROM inserted_feed_follow
 INNER JOIN users ON inserted_feed_follow.user_id = users.id
 INNER JOIN feeds ON inserted_feed_follow.feed_id = feeds.id;
+
+-- name: SelectFeedByURL :one
+SELECT * FROM feeds
+WHERE feeds.url = $1;
+
+-- name: GetFeedFollowsForUser :many
+SELECT
+    feed_follows.*,  -- Select all columns from feed_follows table
+    feeds.name AS feed_name,  -- Select feed name from the feeds table
+    users.name AS user_name  -- Select user name from the users table
+FROM feed_follows
+INNER JOIN feeds ON feed_follows.feed_id = feeds.id
+INNER JOIN users ON feed_follows.user_id = users.id
+WHERE feed_follows.user_id = $1;  -- Filter by user_id (replace $1 with the specific user's ID)
