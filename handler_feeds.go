@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -51,8 +53,32 @@ func scrapeFeed(db *database.Queries, feed database.Feed) {
 		log.Printf("Couldn't collect feed %s: %v", feed.Name, err)
 		return
 	}
+
 	for _, item := range feedData.Channel.Item {
 		fmt.Printf("Found post: %s\n", item.Title)
+		publishedAt, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			fmt.Println("problem parsing the date")
+		}
+		err = db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			FeedID:    feed.ID,
+			Title:     item.Title,
+			Url:       item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  item.Description != "",
+			},
+			PublishedAt: publishedAt,
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "unique constainr vialation, URL was already added") {
+				continue
+			}
+			log.Printf("couldn'T add post to DB %v", err)
+		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
 }
